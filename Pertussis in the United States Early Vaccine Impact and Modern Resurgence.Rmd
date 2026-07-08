@@ -1,0 +1,1223 @@
+<br><br>
+
+![](THD LOGO.jpeg)
+<br><br>
+
+---
+title: "Pertussis in the United States: Early Vaccine Impact and Modern Resurgence"
+author: "Karin-Jessika Heubeck"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 2
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE) 
+```
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+# Overview
+This project explores weekly pertussis incidence across U.S. states from 1938-1955 and 1973-2013 using public health surveillance data. Through time series plots, heatmaps, and vaccine timeline overlays, the study highlights key trends in disease dynamics and the impact of vaccine policy over time.
+
+**Keywords**: Pertussis, Vaccine, Heatmap, Incidence, whole-cell, United States, Data Visualization, Project Tycho, Vaccine Impact, R
+
+## Table of Contents
+
+- [Overview](#overview)
+- [1. Introduction](#1-introduction)
+- [2. Problem Definition](#2-problem-definition)
+- [Historical Development](#historical-development)
+- [Characteristics of Pertussis Vaccines](#characteristics-of-pertussis-vaccines)
+- [Composition](#composition)
+- [Whole-Cell (DTP)](#whole-cell-dtp)
+- [Acellular (DTaP/Tdap)](#acellular-dtaptdap)
+- [Immune Response](#immune-response)
+- [Efficacy](#efficacy)
+- [Safety](#safety)
+- [Administration](#administration)
+- [Impact and Challenges](#impact-and-challenges)
+- [3. Objectives](#3-objectives)
+- [4. Methods](#4-methods)
+- [4.1 Part 1 – Historical Analysis 1938–1955](#41-part-1--historical-analysis-19381955)
+- [4.2 Part 2 – Resurgence Analysis 1973–2011](#42-part-2--resurgence-analysis-19732011)
+- [5. Results](#5-results)
+- [6. Discussion](#6-discussion)
+- [7. Conclusions](#7-conclusions)
+- [Literature](#literature)
+- [Appendix](#appendix)
+
+
+# 1. Introduction
+Pertussis, commonly known as whooping cough, is a highly contagious respiratory disease caused by Bordetella pertussis, characterized by severe coughing fits that can be especially dangerous for infants and young children (Plotkin, 2014; Magpantay & Rohani, 2015). Historically, pertussis was a major cause of childhood illness and death worldwide. The introduction of the whole-cell pertussis vaccine (DTP) in the 1940s led to a significant and sustained reduction in disease burden in many countries, including the United States.
+
+Despite high vaccine coverage, the disease began to resurge in the 1980s. Since then, periodic outbreaks have occurred even in well-vaccinated populations, raising public health concerns and prompting questions about the durability of immunity, potential changes in vaccine formulations, and pathogen adaptation. The switch from whole-cell (DTP) to acellular vaccines (DTaP and Tdap) in the 1990s and 2000s was motivated by safety concerns but may have reduced long-term protection.
+
+While the resurgence of pertussis in the 21st century has attracted significant research attention, a deeper understanding of the historical context—especially the sharp decline in incidence following vaccine rollout—remains essential for interpreting long-term transmission trends (Magpantay and Rohani 2015). Evaluating how quickly and uniformly the vaccine reduced disease burden across U.S. states can provide insights into public health response, vaccine uptake, and inter-state variability in disease control.
+
+This project analyzes pertussis incidence in the United States from 1938 through 2013. By visualizing national and state-level incidence trends, we aim to quantify the early impact of vaccination and highlight temporal and spatial patterns in disease suppression before the modern resurgence.
+
+
+
+
+# 2. Problem Definition
+
+**How did the temporal patterns of pertussis incidence evolve between 1938 and 2013 in the United States—particularly before and after vaccine introduction—and what factors might explain the resurgence after 2000?**
+
+### Historical Development
+
+Even decades after vaccination began, pertussis has persisted—and is resurging. This highlights two challenges:
+- Understanding historical dynamics: Why did states differ in their outbreak frequency before and after vaccination?
+- Interpreting recent resurgence: What are the roles of waning immunity, vaccine changes, and demographic shifts in explaining the rise in pertussis cases after 2000?
+
+
+To contextualize the present study, we present a summary of the key events in U.S. pertussis control during the early vaccine era (Table 1), based on the timeline compiled by Magpantay and Rohani (2015). This helps anchor the temporal scope of our analysis and highlights the timing of vaccine introduction relative to observed changes in disease patterns.
+<br>
+
+<h4>Table 1. Timeline of Key Events in Pertussis Control Efforts During the Early Vaccine Era</h4>
+<p><em>Adapted from: Magpantay FMG, Rohani P (2015)</em></p>
+
+<table style="width:100%; border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th style="width:10%; text-align:left;">Year</th>
+      <th style="width:90%; text-align:left;">Event</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>1906</td><td><em>Bordetella pertussis</em> isolated by Jules Bordet and Octave Gengou</td></tr>
+    <tr><td>1914</td><td>First pertussis vaccine licensed in the United States</td></tr>
+    <tr><td>1936</td><td>Kendrick and Elderling publish results from a 1934–1935 vaccine trial in Michigan; Bell conducts trials on alum-precipitated vaccine in Maryland</td></tr>
+    <tr><td>1938</td><td>Biologic Products Division of the Michigan Department of Health begins mass-producing pertussis vaccine; Bell conducts trials in Virginia</td></tr>
+    <tr><td>1940</td><td>Pertussis vaccines are widely distributed across the United States</td></tr>
+    <tr><td>1944</td><td>American Medical Association recommends the pertussis vaccine</td></tr>
+    <tr><td>1948</td><td>Pertussis vaccine combined with diphtheria and tetanus toxoids (DTP) made widely available in the United States</td></tr>
+  </tbody>
+</table>
+<br>
+<p><strong>Abbreviation:</strong> DTP = diphtheria-tetanus-pertussis</p>
+<br>
+
+The history of pertussis vaccines began in the early 20th century, driven by the need to control widespread outbreaks (Plotkin, 2014). Initial efforts in the 1910s involved crude vaccines made from killed B. pertussis bacteria, but these were inconsistent and poorly standardized (Plotkin, 2014). By the 1930s, advances in microbiology led to the development of whole-cell pertussis vaccines, which were combined with diphtheria and tetanus toxoids to create the DTP (Diphtheria, Tetanus, Pertussis) vaccine (Plotkin, 2014). Introduced in the 1940s, DTP became widely used, resulting in a significant decline in pertussis cases (Plotkin, 2014). For example, in the United States, reported cases dropped from over 200,000 annually in the pre-vaccine era to fewer than 10,000 by the 1970s (van Panhuis et al., 2013).
+
+
+While case counts dropped after vaccine introduction, pertussis continued to circulate—exhibiting periodic epidemic waves in different U.S. states. This variation in epidemic timing and frequency raises questions that go beyond raw incidence numbers.
+
+Recent analyses (e.g., Magpantay & Rohani, 2015) have shown that the timing and recurrence of outbreaks even before vaccination, followed distinct periodicity patterns, which varied geographically.
+
+
+### Characteristics of Pertussis Vaccines
+
+Pertussis vaccines, whether whole-cell or acellular, work by stimulating the immune system to produce antibodies and memory cells that protect against pertussis infection (Plotkin, 2014). Their key characteristics include:
+
+#### Composition:
+
+##### Whole-Cell (DTP):
+Contains inactivated whole pertussis bacteria, providing a a broad range of antigens. This elicits a robust immune response but increases the risk of side effects (Warfel & Edwards, 2015).
+
+##### Acellular (DTaP/Tdap):
+Uses 2–5 purified antigens, such as pertussis toxin, filamentous hemagglutinin, and fimbriae (Warfel & Edwards, 2015). This targeted approach reduces reactogenicity while maintaining efficacy (Schwartz et al., 2016).
+
+##### Immune Response:
+Whole-cell vaccines stimulate both humoral (antibody-mediated) and cellular immunity, contributing to longer-lasting protection, potentially over 10 years (Warfel & Edwards, 2015). Acellular vaccines primarily induce humoral immunity, with protection waning within 5–10 years, necessitating booster doses (Schwartz et al., 2016; Klein et al., 2012).
+
+##### Efficacy:
+DTP vaccines historically showed high initial efficacy (80–90%) but were less studied for long-term protection due to their replacement (Plotkin, 2014). DTaP vaccines have an initial efficacy of around 98% within the first year, dropping to 71% after 5 years (Schwartz et al., 2016). Tdap boosters maintain protection in older populations (Schwartz et al., 2016).
+
+##### Safety:
+DTP is associated with higher rates of side effects, including fever (10–50% of recipients), swelling, and and rare neurological events (Warfel & Edwards, 2015). DTaP and Tdap have milder side effects, such as local swelling or low-grade fever, making them suitable for routine use across age groups (Schwartz et al., 2016; Moro et al., 2011).
+
+##### Administration:
+DTaP is given as a primary series at 2, 4, 6, and 15–18 months, with a booster at 4–6 years (CDC, 2020). Tdap is recommended for adolescents (11–12 years), adults, and pregnant women to protect newborns via maternal antibodies (Schwartz et al., 2016; CDC, 2020).
+
+##### Impact and Challenges:
+Pertussis vaccines have transformed public health, reducing global incidence and mortality (Plotkin, 2014). However, challenges persist, including waning immunity with acellular vaccines and the emergence of pertactin-deficient strains, which reduce vaccine effectiveness (Magpantay & Rohani, 2015; Warfel & Edwards, 2015).
+
+
+By analyzing incidence trends from 1938 to 2013, this project aims to explore how pertussis behaved across states and time, and why the vaccine’s long-term impact varied. In doing so, it links historical epidemiology to current public health challenges.
+
+# 3. Objectives
+This project aims to explore how pertussis incidence changed in the United States over time, especially before and after the introduction of the pertussis vaccine. The focus is on detecting patterns in the historical data from 1938 to 1955 and understanding how the early vaccine rollout influenced disease trends. To do this, we analyzed and visualized incidence data on both national and state levels.
+
+More specifically, the objectives of this work are:
+- To analyze temporal patterns in pertussis incidence between 1938 and 1955 using Project Tycho surveillance data.
+- To visualize how reported case numbers changed over time and across states, highlighting both overall trends and geographic variation.
+- To interpret the early impact of vaccination programs on pertussis incidence using historical data, focusing on the pre-resurgence period.
+- To provide context for the later resurgence of pertussis by briefly linking early trends to modern dynamics, such as waning immunity and changing vaccine   formulations (this part is developed further by the second author of this project).
+
+# 4. Methods
+## 4.1 Part 1 – Historical Analysis 1938–1955
+This part of the project focuses on pertussis incidence in the United States from 1938 to 1955, using surveillance data from Project Tycho Level 1. The aim was to analyze temporal trends and differences between states before and shortly after the introduction of the whole-cell pertussis vaccine in 1948.
+
+### 4.1.1 Data Preprocessing
+The original dataset was provided as a CSV file containing weekly reported cases of multiple diseases per U.S. state. The data was filtered to include only pertussis cases. The epi_week variable, which encodes the year and week number, was split into separate year and week variables. Using the ISOweek2date() function, each week was converted into a date format, and the corresponding month was extracted using lubridate.
+
+Unnecessary columns were removed to simplify the dataset, and rows were sorted by year and week to maintain a consistent time order. The cleaned dataset (pertussis_df3) was saved and used as the basis for all subsequent analyses and visualizations.
+
+### 4.1.2 Aggregation and Analysis
+To highlight key patterns, case numbers were aggregated at different levels:
+Total yearly case counts were calculated to show nationwide trends.
+Averages and standard deviations of annual incidence across states were computed to describe variation.
+
+### 4.1.3 Visualization
+Several visualizations were created using R and these and more packages: tidyverse, ggplot2, viridis, and gganimate. These included:
+A bar plot of total pertussis cases per year (1938–2013).
+A line plot of mean incidence and standard deviation per year across all states.
+An animated choropleth map of total cases by state, highlighting spatial and temporal trends from 1938–1955.
+A heatmap of incidence per 100,000, showing differences between states and missing data regions.
+To maintain transparency, missing data between 1955 and 1973 was clearly shown using shading or blank areas in the plots.
+
+### 4.1.4 Literature Integration
+Scientific publications were consulted to provide context and interpret observed patterns. These included studies on epidemic cycles, demographic influences, and early vaccine effects. Their findings supported interpretations discussed in later sections.
+
+## 4.2 Part 2 – Resurgence Analysis 1973-2011
+### 4.2.1 Data Sources
+#### 4.2.1.1 Project Tycho (1973–2011 Pertussis Incidence)
+Project Tycho, developed by the University of Pittsburgh, provides a comprehensive dataset of pertussis incidence in the United States from 1973 to 2011 (Project Tycho; van Panhuis et al., 2013). This dataset includes the number of pertussis cases reported per epidemiological week (epiweek) across each state, offering a detailed temporal and spatial view of disease spread (van Panhuis et al., 2013). Additionally, it provides incidence rates per 100,000 population, enabling standardized comparisons across regions and time periods (Project Tycho). These data, sourced from public health records, are valuable for analyzing historical trends in pertussis epidemiology, evaluating vaccine impact, and informing control strategies, particularly in the context of the disease’s resurgence (van Panhuis et al., 2013).
+
+#### 4.2.1.2 VAERS Vaccine Report Data
+The Vaccine Adverse Event Reporting System (VAERS), co-managed by the CDC and FDA, collects reports of adverse events following vaccination in the United States (CDC, National Notifiable Diseases Surveillance System). Derived from CDC sources, VAERS data include the number of vaccination reports, categorized by year, state, vaccine type, age, and sex (CDC, National Notifiable Diseases Surveillance System; Shimabukuro et al., 2015). As a passive surveillance system, VAERS captures a wide range of adverse events, from mild reactions like fever to rare serious events, reported by healthcare providers, manufacturers, and the public (Shimabukuro et al., 2015). While critical for detecting potential safety signals, VAERS reports are subject to limitations such as underreporting, incomplete data, and lack of causality confirmation, requiring careful interpretation alongside other scientific evidence (Shimabukuro et al., 2015).
+
+### 4.2.2 Preporcessing:
+#### 4.2.2.1 Date Conversion:
+The original pertussis dataset used epidemiological week numbers (epiweek) to record time. To allow for temporal aggregation and time series plotting, epiweek values were converted to standard date format using the MMWRweek2Date() function from the MMWRweek R package. then new features were obtained like year, month, and week using the lubridate package. These variables enabled grouping and summarization of data across multiple temporal resolutions, including monthly, seasonal, and yearly trends.
+
+#### 4.2.2.2 Geographic Filtering
+To ensure spatial consistency, only records from the 48 continental U.S. states and Washington, D.C. were retained. Entries from non-continental regions such as Alaska, Hawaii, and U.S. territories were excluded.
+
+#### 4.2.2.3 Vaccine Grouping:
+Vaccine records in the VAERS dataset were categorized based on their names. Using pattern matching, vaccines were grouped into four categories: DTP, DTaP, Tdap, and Other. This classification enabled clearer analysis of vaccine usage trends over time and across age groups.
+
+### 4.2.3 Descriptive Analysis
+#### 4.2.3.1 Monthly and Seasonal Trends:
+Pertussis case data were aggregated by month to examine seasonality. This analysis aimed to detect incidence across months and seasons, which are typical for pertussis transmission.
+
+#### 4.2.3.2 Annual Incidence Trends:
+Annual incidence rates were calculated by averaging weekly incidence values for each year. These yearly summaries were then visualized to identify long-term trends in pertussis incidence from 1973 to 2011.
+
+#### 4.2.3.3 Vaccination Reports Over Time:
+Using the VAERS data, the number of reported vaccinations per year was plotted. This analysis included separate time series for each vaccine type (DTP, DTaP, and Tdap) to visualize shifts in vaccine usage and possible correlations with incidence patterns.
+
+#### 4.2.3.4 Age-Specific Vaccine Use:
+To study age-targeted vaccine usage, VAERS data were further grouped by age category. The distribution of vaccine types across different age groups was visualized to understand how immunization strategies evolved over time, particularly with the introduction of DTaP and Tdap vaccines.
+
+# 5. Results
+## 5.1 Part 1 - Historical Analysis 1938–1955
+
+```{r, loading packages, echo = TRUE}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(sf)
+library(maps)
+library(viridis)
+library(gganimate)
+library(ISOweek)
+library(gifski)
+library(forcats)
+```
+
+```{r, pre-processing, echo = TRUE, results="hide"}
+# loading the data into the script
+class <- c("numeric", "character", "character","character","character", "numeric", "numeric")
+df <- read.csv("Project_Tycho___Level_1_Data.csv", colClasses = class,na.strings = "\\N")
+
+# sort by disease
+sort(unique(df$disease))
+
+# select the row regarding pertussis
+pertussis_df <- df %>% 
+  filter(disease == "PERTUSSIS")
+
+# Convert epi_week to a proper date 
+pertussis_df2 <- pertussis_df %>%
+  mutate(
+    year = as.integer(substr(epi_week, 1, 4)),
+    week = as.integer(substr(epi_week, 5, 6)),
+    # Convert to ISO week string like "1966-W01-1" (Monday of the week)
+    iso_week = sprintf("%d-W%02d-1", year, week),
+    # Convert ISO week to actual date (Monday of that week)
+    week_start = ISOweek2date(iso_week),
+    # Extract month from the date (lubridate used here)
+    month = month(week_start)
+  ) %>%
+  select(-iso_week, -week_start)  # Drop helper columns if you want
+
+#remove unnecessary columns
+pertussis_df3 <- pertussis_df2 %>% select(-epi_week)
+
+# sort by year and then week in an increasing order
+pertussis_df3 <- pertussis_df3[order(pertussis_df3$year, pertussis_df3$week), ]
+
+#exporting the data
+ write.table(pertussis_df3, file = "D:\\OneDrive\\Master LSI\\2. semester\\data visualization\\final assignment\\pertussis_data.csv", sep = ",", row.names = FALSE)
+```
+
+```{r, total annual pertussis cases, fig.width=12, fig.height=7, echo = TRUE}
+# Define full year range
+all_years <- data.frame(year = 1938:2011)
+
+# Summarize actual data
+yearly_totals <- pertussis_df3 %>%
+  group_by(year) %>%
+  summarize(total_cases = sum(cases, na.rm = TRUE), .groups = "drop")
+
+# Merge with all years to include missing ones (they'll have NA)
+yearly_totals_full <- left_join(all_years, yearly_totals, by = "year")
+
+# Convert to factor to preserve order
+yearly_totals_full$year <- factor(yearly_totals_full$year, levels = as.character(1938:2011))
+
+# Identify key x positions for annotations
+year_levels <- sort(unique(yearly_totals$year))
+x_pos_1948 <- which(year_levels == 1948)
+x_pos_1955 <- which(year_levels == 1955)
+x_pos_1973 <- which(year_levels == 1973)
+
+# Convert year to factor (with all years as levels to preserve order)
+yearly_totals$year <- factor(yearly_totals$year, levels = year_levels)
+
+# Plot
+ggplot(yearly_totals_full, aes(x = year, y = total_cases)) +
+  geom_bar(stat = "identity", fill = "darkblue") +
+  
+  # Vaccine line
+  geom_vline(xintercept = x_pos_1948, linetype = "dashed", color = "red", linewidth = 1) +
+  annotate("text",
+           x = x_pos_1948 + 2,
+           y = max(yearly_totals$total_cases, na.rm = TRUE) * 0.85,
+           label = "Vaccine",
+           angle = 90, hjust = 0, size = 3.5, color = "red") +
+
+  # ✅ FIXED: Added the missing "+" here
+  annotate("rect",
+           xmin = which(levels(yearly_totals_full$year) == "1956") - 0.5,
+           xmax = which(levels(yearly_totals_full$year) == "1973") + 0.5,
+           ymin = -Inf, ymax = Inf,
+           fill = "grey", alpha = 0.3) +
+
+  labs(title = "Total Pertussis Cases per Year in the US",
+       subtitle = "Red line = vaccine introduction (1948), grey = missing data (1955–1973)",
+       x = "Year", y = "Total Cases") +
+
+  scale_x_discrete(breaks = levels(yearly_totals_full$year)[seq(1, length(levels(yearly_totals_full$year)), by = 5)]) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 10))
+```
+Figure 1: Total annual pertussis cases in the United States from 1938 to 2010.
+Each bar shows the total number of reported pertussis cases summed across all U.S. states for that year. The red dashed line marks the introduction of the whole-cell pertussis vaccine in 1948. The grey area (1955–1973) indicates a data gap in the source dataset (Project Tycho). A visible decline in case numbers follows the introduction of vaccination, while a resurgence in cases becomes apparent in the early 2000s.
+
+
+We started by looking at the total number of pertussis cases reported each year in the United States between 1938 and 2010. Figure 1 shows a clear overall trend: case numbers were very high in the years before vaccination, often exceeding 150,000 cases per year. After the vaccine was introduced in 1948 (red dashed line), there was a sharp and steady decline in total reported cases. By the early 1950s, numbers had dropped significantly. However, there’s a noticeable gap in the data between 1955 and 1973, which is marked in grey. During this time, no complete national data are available in the dataset we used.
+
+Starting in the mid-1970s, case numbers were much lower but began slowly increasing over time. A more visible resurgence occurred in the early 2000s, with annual case numbers rising again, though they never reached the high levels seen before vaccination.
+
+```{r, animation plot, echo = TRUE, eval = FALSE}
+#Create a complete grid of all states × years
+all_years <- 1938:1955
+all_states <- unique(states_sf$state_name)
+
+complete_grid <- expand.grid(state_name = all_states, year = all_years)
+
+#Join your summarized data into that complete grid
+summary_df_complete <- complete_grid %>%
+  left_join(summary_df, by = c("state_name" = "loc", "year"))
+
+#Join this complete data with the spatial map
+map_df_complete <- left_join(states_sf, summary_df_complete, by = "state_name")
+
+#Plot with missing data shown as white
+ggplot(data = filter(map_df_complete, year >= 1938 & year <= 1955)) +
+  geom_sf(aes(fill = total_cases), color = "white") +
+  scale_fill_viridis(
+    option = "plasma",
+    na.value = "white",
+    limits = c(0, max(summary_df$total_cases, na.rm = TRUE)),
+    breaks = c(0, 5000, 10000, 15000, 20000)
+  ) +
+  labs(
+    title = "Pertussis Cases by State — Year: {current_frame}",
+    fill = "Total Cases"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = "bold")) +
+  transition_manual(year)
+
+#Save animation
+anim <- last_plot()
+
+animate(anim,
+        nframes = 70,
+        fps = 1,
+        end_pause = 5,
+        width = 800,
+        height = 500,
+        renderer = gifski_renderer())
+
+anim_save("pertussis_map.gif", animation = last_animation())
+```
+![](pertussis_map.gif)
+
+Figure 2: An animated map showing the total number of reported pertussis cases in each U.S. state from 1938 to 1955. Color intensity reflects the total number of cases per state per year (warmer colors indicate more cases). States with missing data are shown in white. This visualization is based on absolute case counts and does not account for population size, but it illustrates spatial and temporal variation in pertussis burden during the early vaccine era.
+
+
+The animated map shows how many pertussis cases were reported in each U.S. state from 1938 to 1955. Each frame shows one year, and the colors represent the number of cases — warmer colors like yellow and orange mean more cases, while cooler colors mean fewer. States where no data was available are shown in white.
+
+Even though the plot shows raw case numbers (not adjusted for population size), some patterns are already visible. States like New York, California, Texas, and Illinois appear with bright colors almost every year, which makes sense since they had larger populations. Other states, especially in the Midwest and parts of the West, show much lower numbers. You can also see that some states have outbreaks almost every year, while others seem to have big spikes only every few years. 
+
+
+```{r, mean annual pertussis incidence, echo = TRUE, fig.width=12, fig.height=6,}
+#Get all years in range
+all_years <- tibble(year = min(pertussis_df3$year):max(pertussis_df3$year))
+
+#Compute mean, SD, max incidence per year
+incidence_stats <- pertussis_df3 %>%
+  group_by(year) %>%
+  summarise(
+    mean_inc = mean(incidence_per_100000, na.rm = TRUE),
+    sd_inc = sd(incidence_per_100000, na.rm = TRUE),
+    max_inc = max(incidence_per_100000, na.rm = TRUE)
+  )
+
+#Join with full year list to make gaps explicit
+incidence_stats_full <- all_years %>%
+  left_join(incidence_stats, by = "year")
+
+
+# ploting "Mean Annual Pertussis Incidence in the US (± SD)"
+ggplot(incidence_stats_full, aes(x = year, y = mean_inc)) +
+  # Highlight the data gap
+  annotate("rect", xmin = 1956, xmax = 1973, ymin = -Inf, ymax = Inf, alpha = 0.2, fill = "grey70") +
+  geom_ribbon(aes(ymin = mean_inc - sd_inc, ymax = mean_inc + sd_inc),
+              fill = "skyblue", alpha = 0.3) +
+  geom_line(color = "darkblue", linewidth = 1.2) +
+  labs(
+    title = "Mean Annual Pertussis Incidence in the US (± SD)",
+    x = "Year",
+    y = "Mean Incidence per 100.000 population "
+  ) +
+  theme_minimal(base_size = 14)
+```
+Figure 3: Mean Annual Pertussis Incidence in the US (1938–2013).
+The plot shows the mean and standard deviation of annual pertussis incidence across all states. The shaded grey region from 1956 to 1973 indicates a period with no available data in the source dataset (Project Tycho Level 1). 
+The trend demonstrates a sharp decline following vaccine introduction and a modest resurgence after 2000.
+
+
+The plot shows the mean number of pertussis cases per 100.000 people each year across all U.S. states from 1938 to 2013, along with standard deviation (SD) to show how much variation there was from year to year.
+
+Right after the vaccine was introduced around 1948 (marked by the sharp decline), we see a clear and rapid drop in incidence. From the early 1950s onward, pertussis became much less common in the U.S. This matches expectations from vaccine rollout. There's a noticeable data gap from 1956 to 1973, where no reliable data were available in the dataset (this is shown in grey).
+
+After that, the incidence stayed low for a while but started to rise again in the early 2000s. Although the increase is small compared to the pre-vaccine era, it's still clearly visible.
+
+```{r, incidence heatmap plot, fig.width=10, fig.height=8, echo = TRUE}
+# Summarize the data (1938–1955, excluding AK and HI)
+heatmap_df <- pertussis_df3 %>%
+  filter(year >= 1938 & year <= 1955) %>%
+  group_by(loc, year) %>%
+  summarise(incidence = sum(incidence_per_100000, na.rm = TRUE), .groups = "drop")
+
+# Compute total incidence per state for ordering
+state_order <- heatmap_df %>%
+  group_by(loc) %>%
+  summarise(total_incidence = sum(incidence, na.rm = TRUE)) %>%
+  arrange(desc(total_incidence))
+
+# Reorder 'loc' factor levels
+heatmap_df <- heatmap_df %>%
+  mutate(loc = factor(loc, levels = state_order$loc))
+
+# Plot
+ggplot(heatmap_df, aes(x = year, y = loc, fill = incidence)) +
+  geom_tile(color = "white", linewidth = 0.1) +
+  scale_fill_viridis_c(option = "magma", name = "Incidence per 100k", na.value = "grey90") +
+  scale_x_continuous(breaks = seq(1938, 1955, by = 2)) +
+  labs(
+    title = "Pertussis Incidence by State and Year (1938–1955)",
+    x = "Year",
+    y = "State (ordered by total incidence)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(axis.text.y = element_text(size = 7))
+
+```
+Figure 4: Pertussis incidence per 100,000 people by U.S. state and year (1938–1955).
+This heatmap shows how pertussis incidence varied across states and over time. Each row is a state (ordered by total incidence), and each column is a year. Colors represent incidence levels per 100,000 population, with brighter colors indicating more cases.
+
+
+The heatmap gives a detailed view of how pertussis incidence changed across U.S. states from 1938 to 1955. The early years, show high incidence in many states, with some of the highest values seen in Vermont, Utah, and Wisconsin. After the introduction of the vaccine in 1948, there’s a noticeable drop in incidence across almost all states.
+
+## 5.2 Part 2 – Resurgence Analysis 1973 - 2013
+
+
+```{r setup, include=FALSE, echo = TRUE}
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(MMWRweek)
+library(pheatmap)
+library(lubridate)
+library(forcats)
+library(scales)
+library(RColorBrewer)
+
+```
+
+```{r, echo = TRUE}
+# EDA
+Project_Tycho_Level_1_Data_1_ <- readr::read_csv("Project_Tycho___Level_1_Data.csv")
+
+## Extracting pertussis data
+PERTUSSIS <- Project_Tycho_Level_1_Data_1_ %>% filter(disease == 'PERTUSSIS')
+```
+
+ 
+```{r, echo = TRUE}
+# # Date Extraction
+# Using epiweek the date of the start of each week is defined in addition to month and year.
+PERTUSSIS$epiWeek <- stringi::stri_c(PERTUSSIS$epi_week)
+PERTUSSIS$year <- substr(PERTUSSIS$epiWeek,1,4)
+PERTUSSIS$week <- substr(PERTUSSIS$epiWeek,5,6) 
+PERTUSSIS$date <- MMWRweek2Date(MMWRyear = as.numeric(PERTUSSIS$year), MMWRweek = as.numeric(PERTUSSIS$week))
+PERTUSSIS$month <-  month(PERTUSSIS$date)
+
+# filtering the right time period
+pert_1973 <- PERTUSSIS %>% filter(year >= 1973)
+```
+
+
+```{r, echo = TRUE, fig.width=12}
+pert_1973 <- pert_1973 %>%
+  mutate(season = case_when(
+    month %in% c(12, 1, 2)  ~ "Winter",
+    month %in% c(3, 4, 5)   ~ "Spring",
+    month %in% c(6, 7, 8)   ~ "Summer",
+    month %in% c(9, 10, 11) ~ "Fall"
+  ))
+
+
+pert_1973 %>%
+  group_by(season) %>%
+  summarise(cases = sum(cases), .groups = "drop") %>%
+  mutate(season = factor(season, 
+        levels = c("Winter", "Spring", "Summer", "Fall"))) %>%
+  ggplot(aes(x = season, y = cases, fill = season)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Pertussis Cases by Season (1973–2011)",
+    x = "Season",
+    y = "Total Cases"
+  ) +
+  theme_minimal(base_size = 13)
+```
+Figure 5: Seasonal distribution of reported pertussis cases in the United States (1973-2011).
+
+Figure 5 displays the total number of pertussis cases reported per month. As noted by Clark (2014), whooping cough tends to show seasonal patterns, with incidence typically rising during the summer and fall months. The presence of this expected pattern in our dataset supports its reliability and integrity.
+
+```{r, echo = TRUE, fig.width=12}
+pert_1973 %>%
+  group_by(year) %>%
+  summarise(cases = sum(cases)) %>% 
+  ggplot(aes(x = as.numeric(year), y = cases)) +
+  geom_point() +
+  geom_line() +
+  geom_smooth() +
+  theme_minimal() +
+  labs(x = "Year", y = "Incidence per 100.000", title = "Mean Annual Incidence Rate")
+```
+Figure 6: Mean annual pertussis incidence per 100,000 population from 1973 to 2011. The incidence rate shows a gradual increase, peaking around 2005.
+
+The Tycho data indicates a clear upward trend in whooping cough incidence starting in the 1980s. While no single explanation fully accounts for this resurgence, several factors are thought to contribute. The introduction of PCR testing for Bordetella pertussis improved detection rates, increasing reported cases. Simultaneously, experts suggest that waning immunity—especially with the acellular vaccine—played a key role in the comeback of the disease. During the same period, the DTP vaccine faced intense criticism from anti-vaccination movements in the U.S. and the U.K., further complicating vaccine uptake and public trust.
+
+```{r, echo = TRUE, fig.width=12}
+VAERS <- read_delim("D:\\OneDrive\\Master LSI\\2. semester\\data visualization\\final assignment\\The Vaccine Adverse Event Reporting System (VAERS).xls", delim = "\t", escape_double = FALSE, trim_ws = TRUE)
+
+
+cont_state <- c(
+  "Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+  "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa",
+  "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+  "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska",
+  "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
+  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+  "West Virginia", "Wisconsin", "Wyoming"
+)
+VAERS <- VAERS %>% filter(`State / Territory` %in% cont_state)
+
+VAERS %>%
+  filter(`Year Vaccinated` > 1990) %>%
+  group_by(`Year Vaccinated`) %>%
+  summarise(report = sum(`Events Reported`, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = `Year Vaccinated`, y = report)) +
+  geom_line(size = 1.1, color = "steelblue") +
+  geom_point(size = 2, color = "steelblue") +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Total VAERS Reports by Year",
+    subtitle = "1990–2011",
+    x = "Year Vaccinated",
+    y = "Number of Reports"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40"),
+    axis.text = element_text(size = 11),
+    panel.grid.minor = element_blank()
+  ) + geom_text(aes(label = ifelse(report > 1000, report, "")), vjust = -0.8, size = 3)
+
+
+```
+
+Figure 7. Total vaccinations reported per year from 1990 to 2011, showing a drop until 1998 and a sharp rise after that.
+
+Figure 7 shows how many vaccinations were reported each year between 1990 and 2011. From 1990 to 1998, the number of vaccinations went down. This was likely because people were worried about the safety of the DTP vaccine. At that time, anti-vaccine groups were very active and raised concerns about side effects.
+
+After 1998, the number of vaccinations increased quickly. This was when a new version of the vaccine, called DTaP, started to replace DTP. DTaP causes fewer side effects, so more people were willing to get vaccinated. The lowest point in the chart matches the time when the switch from DTP to DTaP was happening. High vaccine prices may have also affected vaccination rates.
+
+After 2003, health officials recommended extra booster shots for teenagers to help prevent new outbreaks of whooping cough.
+```{r, echo = TRUE, fig.width=12}
+VAERS <- VAERS %>% 
+mutate(group = case_when(
+    grepl("^DTP", Vaccine)  ~ "DTP",
+    grepl("^DTAP", Vaccine) ~ "DTaP",
+    grepl("^TDAP", Vaccine) ~ "Tdap",
+    TRUE ~ "Other"
+  )) 
+
+VAERS %>% 
+  filter(group != 'Other' & `Year Vaccinated` >= 1990) %>%
+  group_by(group, `Year Vaccinated`) %>%
+  summarise(report = sum(`Events Reported`), .groups = "drop") %>% 
+  ggplot(aes(x = `Year Vaccinated`, y = report, color = group)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = 1991, linetype = "dashed", color = "red") +  # DTaP
+  geom_vline(xintercept = 2005, linetype = "dashed", color = "blue") +   # Tdap
+  annotate("text", x = 1991, y = Inf, label = "DTaP Intro", angle = 90, vjust = 1.3, color = "blue", size = 3) +
+  annotate("text", x = 2005, y = Inf, label = "Tdap Intro", angle = 90, vjust = 1.3, color = "red", size = 3) +
+  labs(
+    title = "VAERS Reports by Vaccine Type (1990–2011)",
+    subtitle = "Dashed lines indicate vaccine introductions",
+    x = "Year Vaccinated",
+    y = "Reports",
+    color = "Vaccine Type"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "top",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40")
+  )
+
+
+```
+Figure 8: Vaccine Timeline from 1990 to 2011.
+
+Figure 8 shows how the use of different pertussis vaccines changed over time. After the DTaP vaccine (the newer, safer version) was introduced in 1991, the number of DTP vaccine reports began to decrease. This switch happened because DTaP causes fewer side effects than DTP.
+
+The lowest point in the timeline marks the transition period from DTP to DTaP. After 2003, vaccination numbers went up again when health authorities started recommending extra booster shots, especially for older children and teenagers, to deal with waning immunity and the return of whooping cough (CDC, 2006).
+
+```{r, echo = TRUE, fig.width=12}
+## vaccinations per year since 1990
+vax_90 <- VAERS %>%
+  filter(`Year Vaccinated` > 1990) %>%
+  group_by(`Year Vaccinated`) %>%
+  summarise(report = sum(`Events Reported`, na.rm = TRUE),
+            year =`Year Vaccinated` , .groups = "drop")
+
+## reported cases per year since 1990
+pert_90 <- pert_1973 %>% 
+  filter(year >= 1990) %>% 
+  group_by(year) %>% 
+  summarise(cases = sum(cases))
+pert_90$year <- as.numeric(pert_90$year)
+
+##joining both cases and vaccinations 
+pert_vax_90 <- left_join(
+  pert_90,
+  vax_90
+)
+
+ggplot(pert_vax_90, aes(x = year)) +
+  geom_line(aes(y = report, color = "Vaccine Reports"), size = 1.2) +
+  geom_line(aes(y = cases, color = "Pertussis Cases"), size = 1.2) +
+  scale_color_manual(values = c("Vaccine Reports" = "steelblue", "Pertussis Cases" = "firebrick")) +
+  labs(
+    title = "Pertussis Cases vs. Vaccine Adverse Event Reports (1990–2011)",
+    x = "Year",
+    y = "Count",
+    color = "Legend"
+  ) +
+   geom_vline(xintercept = 1991, linetype = "dashed", color = "red") +  # DTaP
+  geom_vline(xintercept = 2005, linetype = "dashed", color = "blue") +   # 
+  annotate("text", x = 1991, y = Inf, label = "DTaP Intro", angle = 90, vjust = 1.3, color = "blue", size = 3) +
+  annotate("text", x = 2005, y = Inf, label = "Tdap Intro", angle = 90, vjust = 1.3, color = "red", size = 3)+
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    legend.position = "top",
+    axis.text = element_text(size = 11)
+  )
+
+```
+Figure 9: Comparing Cases and Vaccinations per Year (1990–2011)
+
+Figure 9 shows the number of whooping cough cases each year compared to the number of vaccination reports. The DTaP vaccine was introduced in 1991, and the Tdap booster followed in 2005.
+
+Although vaccination reports increased after 1998, the number of pertussis cases also kept rising. This suggests that high vaccination rates alone were not enough to stop the outbreaks—possibly due to waning immunity or other factors.
+
+```{r, echo = TRUE, fig.width=12}
+library(RColorBrewer)
+
+VAERS %>%
+  filter(Age != 'Unknown' & group != 'Other') %>%
+  group_by(group, Age) %>%
+  summarise(report = sum(`Events Reported`, na.rm = TRUE), .groups = "drop") %>%
+  mutate(Age = reorder(as.factor(Age), report)) %>%
+  ggplot(aes(x = report, y = Age, fill = group)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Vaccination Reports by Age and Vaccine Group",
+    x = "Number of Reports",
+    y = "Age",
+    fill = "Vaccine Group"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    legend.position = "top",
+    axis.text = element_text(size = 11)
+  )
+
+
+```
+Figure 10: Vaccine Types by Age Group
+
+Figure 10 shows which vaccine types were reported for different age groups. DTaP and DTP were mostly used for children under 6 years old, while Tdap was given to older children and adults.
+
+Even though Tdap is meant for people over 6, DTaP was still reported across all age groups. The number of vaccine reports gets lower as age increases, which could be due to fewer vaccinations or less frequent reporting for older people.
+
+# 6. Discussion
+
+
+Figure 1 gives a first impression of the overall timeline of pertussis in the U.S. It clearly shows how impactful the introduction of the vaccine was in the late 1940s. The drop in total case numbers in the years immediately after 1948 is dramatic and supports the view that widespread vaccination had a strong public health benefit.
+
+The grey gap from 1955 to 1973 is a limitation of the dataset, which is important to acknowledge when interpreting trends. It’s possible that more detailed or state-level records exist elsewhere, but this national view is missing during that period.
+
+After 1973, we see a long period of low but slowly increasing incidence, followed by a more noticeable rise in the early 2000s. 
+
+We also see a clear resurgence of pertussis starting in the early 2000s. We don’t analyze this period in detail in this paper (that’s covered by another part of the project), but it fits with evidence from other studies that the newer acellular pertussis vaccines may lead to immunity that wears off faster, and that changes in the vaccine itself might be a part of the cause (Mooi et al. 2014).
+
+The patterns in the animation (Figure 2) match what has been described in earlier research. A study by Magpantay and Rohani (2015) looked at pertussis outbreaks in different states between 1938 and 1955 and found that not all states followed the same epidemic pattern. They grouped states into three categories based on how often large outbreaks happened:
+- Group 1 had outbreaks every year.
+- Group 2 started with yearly outbreaks but later had bigger gaps between them.
+- Group 3 already had multiyear gaps between outbreaks in the 1940s.
+
+These differences seem to be related to things like birth rates, how crowded homes were, and how many children families had. For example, states with higher birth rates and more crowding (like in the South) had more children who could catch the disease, so outbreaks happened more regularly. In contrast, states with fewer births and less crowding (often in the North) had fewer new susceptibles, so the disease spread more slowly, and outbreaks were more spread out.
+
+The same study also found that states with more regular outbreaks back then tended to have lower vaccine coverage in later years. That might be part of the reason why some of those states saw a stronger resurgence of pertussis in the 2000s.
+ 
+
+After the introduction of the whole-cell pertussis vaccine in the 1940s, Figure 3 shows a strong and steady decline in pertussis incidence across the United States. This pattern matches what other studies have observed and confirms the effectiveness of the vaccine in reducing disease spread during the early vaccine era (Magpantay and Rohani 2015)
+.
+
+The resurgence seen after the year 2000 has been observed in many countries, including the U.S., and it likely has multiple causes. One important reason is that immunity from the vaccine does not last forever. Studies show that both natural and vaccine-acquired immunity can wear off over time. Acellular vaccines, which replaced the original whole-cell vaccines in many places, may offer shorter protection, especially in older children and adults (Mooi et al. 2014)
+.
+
+Another factor may be that Bordetella pertussis, the bacterium that causes whooping cough, has changed over time. There is evidence that it has adapted in response to vaccination by producing different antigens or more toxins, which might help it avoid the immune system. These changes could make vaccines less effective and lead to more frequent infections in people whose immunity has weakened (Mooi et al. 2014)
+.
+
+Lastly, even though we do not analyze it in depth here, this kind of resurgence fits what others have found — that recent increases in pertussis cases are likely due to both weaker long-term protection and changes in the bacteria itself (Jackson and Rohani 2014).
+
+
+The heatmap (Figuer 4) confirms the broad trends we’ve seen in earlier plots: high pertussis activity before the vaccine era, followed by a big drop, and a more recent uptick in some places. The sharp decline after 1948 fits well with the vaccine introduction, which quickly reduced transmission across the country. But the resurgence seen in some states after 2000 adds to the growing concern that immunity might not last long enough, especially with the newer acellular vaccines (Mooi et al. 2013).
+
+The heatmap also helps highlight which states were hit hardest overall. States with high average incidence — like Vermont and Wisconsin — likely had demographic or social factors that made disease spread easier. This is consistent with earlier findings that linked frequent pertussis outbreaks to things like high birth rates and crowded households (Magpantay and Rohani 2015).
+
+As for the period after 1973 the question arises of what the reason for the resurgence was.
+
+Since the 1980s, the number of reported pertussis (whooping cough) cases in the United States has increased steadily (Fig.2(trend line)). This rise likely results from a combination of social, biological, and technological factors. Although no single explanation can fully account for the resurgence, several major contributors have been identified.
+
+Changes in Vaccination Patterns and Public Perception During the 1990s, public concerns about the safety of the whole-cell DTP vaccine led to a decline in its use(klein, 2014). Reports of side effects, though often mild, reduced public trust in vaccination. According to VAERS data, the number of DTP-related vaccine reports dropped sharply in the 1990s, reaching a low in 1998. In response, a new acellular vaccine (DTaP), which causes fewer side effects, was introduced and gradually replaced DTP (Cherry, 2012). This shift is clearly shown in (fig.4 (vaccine type)), where DTaP reports increase as DTP declines. To improve immunity, vaccination programs also expanded to include older children and adults, not just infants (Clark, 2014). Despite these changes, pertussis cases continued to rise.
+
+Evolution of the Bacteria Research has shown that B.pertussis, the bacteria that causes pertussis, has evolved in response to vaccination. In particular, some strains have lost the pertactin (PRN) protein — one of the main components targeted by acellular vaccines(Warfel & Edwards, 2015; Schwartz et al., 2016). These PRN-deficient strains became more common in the late 1990s and 2000s, reducing the effectiveness of DTaP and Tdap vaccines. Similar strains have been reported in other countries, suggesting that this is a global trend. The spread of these new variants likely contributed to the rise in pertussis despite high vaccination coverage(Magpantay & Rohani, 2015; Hegerle & Guiso, 2014).
+
+Improved Diagnostic Methods Another important factor is the improvement in diagnostic tools. In the past, pertussis was diagnosed mainly by bacterial culture, which is slow and less sensitive. In the 1990s, PCR testing became more widely used. PCR is faster and more accurate, which led to more cases being detected, especially mild or atypical ones that might have been missed before(Faulkner et al., 2016). While this does not mean there were no real increases in pertussis, it does suggest that part of the observed rise is due to better detection.
+
+# 7. Conclusions
+
+The visualizations presented in this project clearly demonstrate a substantial decline in reported pertussis cases after the rollout of the whole-cell vaccine in the 1940s.
+
+Temporal trends indicate that pertussis was widespread and persistent before vaccination, with some states experiencing annual outbreaks and others showing more irregular epidemic patterns. These differences reflect not only demographic factors—such as birth rates, population density, and household size—but also potential disparities in healthcare access and disease reporting.
+
+The early vaccine campaigns significantly reduced the burden of pertussis nationwide, although disease elimination was not achieved. These results provide historical context for understanding long-term vaccine effects and the foundations of pertussis control in the U.S.
+
+Future studies could focus on quantifying the relationship between state-level birth rates and epidemic frequency, or investigate how reporting systems and data quality evolved during this time. Additionally, linking incidence trends to socioeconomic indicators might offer deeper insight into regional differences in vaccine impact.
+
+From a public health perspective, this period offers important lessons: early vaccine efforts worked, but disease control was uneven and incomplete. Understanding the successes and limitations of this era can inform more equitable and effective strategies for managing vaccine-preventable diseases today.
+
+The resurgence of pertussis in recent decades appears to result from a combination of factors, including the shift from whole-cell to acellular vaccines, the emergence of pertactin-deficient bacterial strains, improved diagnostic methods, and changing vaccination practices. While acellular vaccines reduced adverse reactions, they offer shorter-lasting immunity, leaving older age groups more vulnerable. Diagnostic advances like PCR have increased detection rates, particularly for mild or atypical cases, contributing to higher reported incidence. Despite high national vaccine coverage, these overlapping biological, social, and technological changes have created conditions that allowed pertussis to re-emerge, underscoring the need for sustained surveillance and updated vaccination strategies.
+
+# Literature
+Magpantay FMG, Rohani P (2015) Dynamics of pertussis transmission in the United States. Am J Epidemiol 181:921–931. doi:10.1093/aje/kwv024
+
+Mooi FR, van der Maas NAT, de Melker HE (2014) Pertussis resurgence: waning immunity and pathogen adaptation—two sides of the same coin. Epidemiol Infect 142(4):685–694. doi:10.1017/S0950268813000071
+
+Jackson DW, Rohani P (2014) Perplexities of pertussis: recent global epidemiological trends and their potential causes. Epidemiol Infect 142(4):672–684. doi:10.1017/S0950268812003093
+
+Plotkin S. (2014). History of vaccination. Proceedings of the National Academy of Sciences of the United States of America, 111(34), 12283–12287. doi:10.1073/pnas.1400472111
+
+F. M. G. Magpantay, P. Rohani (2015) Dynamics of Pertussis Transmission in the United States, American Journal of Epidemiology, Volume 181, Issue 12, Pages 921–931, doi:10.1093/aje/kwv024
+
+van Panhuis, W. G., Grefenstette, J., Jung, S. Y., Chok, N. S., Cross, A., Eng, H., Lee, B. Y., Zadorozhny, V., Brown, S., Cummings, D., & Burke, D. S. (2013). Contagious diseases in the United States from 1888 to the present. The New England journal of medicine, 369(22), 2152–2158. doi:10.1056/NEJMms1215400
+
+Project Tycho. University of Pittsburgh. https://www.tycho.pitt.edu (Accessed on may 2025)
+
+CDC. National Notifiable Diseases Surveillance System (NNDSS). https://www.cdc.gov/nndss (Accessed on may 2025)
+
+United States Department of Health and Human Services (DHHS), Public Health Service (PHS), Centers for Disease Control (CDC) / Food and Drug Administration (FDA), Vaccine Adverse Event Reporting System (VAERS) 1990 - 05/30/2025, CDC WONDER On-line Database.(Accessed on may 2025) http://wonder.cdc.gov/vaers.html
+
+Klein N. P. (2014). Licensed pertussis vaccines in the United States. History and current state. Human vaccines & immunotherapeutics, 10(9), 2684–2690. doi:10.4161/hv.29576
+
+Cherry J. D. (2012). Epidemic pertussis in 2012–the resurgence of a vaccine-preventable disease. The New England journal of medicine, 367(9), 785–787. doi:10.1056/NEJMp1209051
+
+Clark T. A. (2014). Changing pertussis epidemiology: everything old is new again. The Journal of infectious diseases, 209(7), 978–981. doi:10.1093/infdis/jiu001
+
+Warfel, J. M., & Edwards, K. M. (2015). Pertussis vaccines and the challenge of inducing durable immunity. Current opinion in immunology, 35, 48–54. doi:10.1016/j.coi.2015.05.008
+
+Faulkner, A. E., Skoff, T. H., Tondella, M. L., Cohn, A., Clark, T. A., & Martin, S. W. (2016). Trends in Pertussis Diagnostic Testing in the United States, 1990 to 2012. The Pediatric infectious disease journal, 35(1), 39–44. doi:10.1097/INF.0000000000000921
+
+# Appendix
+
+## R Code Historical Analysis 1938–1955
+
+```{r, loading packages appendix, echo = TRUE, eval = FALSE}
+# loading packages
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(sf)
+library(maps)
+library(viridis)
+library(gganimate)
+library(ISOweek)
+library(gifski)
+library(forcats)
+```
+
+```{r, pre-processing appendix, echo = TRUE, eval = FALSE}
+# pre-processing
+# loading the data into the script
+class <- c("numeric", "character", "character","character","character", "numeric", "numeric")
+df <- read.csv("Project_Tycho___Level_1_Data.csv", colClasses = class,na.strings = "\\N")
+
+# sort by disease
+sort(unique(df$disease))
+
+# select the row regarding pertussis
+pertussis_df <- df %>% 
+  filter(disease == "PERTUSSIS")
+
+# convert epi_week to a proper date 
+pertussis_df2 <- pertussis_df %>%
+  mutate(
+    year = as.integer(substr(epi_week, 1, 4)),
+    week = as.integer(substr(epi_week, 5, 6)),
+    # Convert to ISO week string like "1966-W01-1" (Monday of the week)
+    iso_week = sprintf("%d-W%02d-1", year, week),
+    # Convert ISO week to actual date (Monday of that week)
+    week_start = ISOweek2date(iso_week),
+    # Extract month from the date (lubridate used here)
+    month = month(week_start)
+  ) %>%
+  select(-iso_week, -week_start)  # Drop helper columns if you want
+
+# remove unnecessary columns
+pertussis_df3 <- pertussis_df2 %>% select(-epi_week)
+
+# sort by year and then week in an increasing order
+pertussis_df3 <- pertussis_df3[order(pertussis_df3$year, pertussis_df3$week), ]
+
+# exporting the data
+write.table(pertussis_df3, file = "D:\\OneDrive\\Master LSI\\data visualization\\final assignment\\pertussis_data.csv", sep = ",", row.names = FALSE)
+```
+
+```{r, Total annual pertussis cases appendix, fig.width=12, fig.height=7, echo = TRUE, eval = FALSE}
+# total annual pertussis cases
+# define full year range
+all_years <- data.frame(year = 1938:2011)
+
+# summarize actual data
+yearly_totals <- pertussis_df3 %>%
+  group_by(year) %>%
+  summarize(total_cases = sum(cases, na.rm = TRUE), .groups = "drop")
+
+# Merge with all years to include missing ones (they'll have NA)
+yearly_totals_full <- left_join(all_years, yearly_totals, by = "year")
+
+# convert to factor to preserve order
+yearly_totals_full$year <- factor(yearly_totals_full$year, levels = as.character(1938:2011))
+
+# identify key x positions for annotations
+year_levels <- sort(unique(yearly_totals$year))
+x_pos_1948 <- which(year_levels == 1948)
+x_pos_1955 <- which(year_levels == 1955)
+x_pos_1973 <- which(year_levels == 1973)
+
+# convert year to factor (with all years as levels to preserve order)
+yearly_totals$year <- factor(yearly_totals$year, levels = year_levels)
+
+# plot
+ggplot(yearly_totals_full, aes(x = year, y = total_cases)) +
+  geom_bar(stat = "identity", fill = "darkblue") +
+  
+  # vaccine line
+  geom_vline(xintercept = x_pos_1948, linetype = "dashed", color = "red", linewidth = 1) +
+  annotate("text",
+           x = x_pos_1948 + 2,
+           y = max(yearly_totals$total_cases, na.rm = TRUE) * 0.85,
+           label = "Vaccine",
+           angle = 90, hjust = 0, size = 3.5, color = "red") +
+  annotate("rect",
+           xmin = which(levels(yearly_totals_full$year) == "1956") - 0.5,
+           xmax = which(levels(yearly_totals_full$year) == "1973") + 0.5,
+           ymin = -Inf, ymax = Inf,
+           fill = "grey", alpha = 0.3) +
+
+  labs(title = "Total Pertussis Cases per Year in the US",
+       subtitle = "Red line = vaccine introduction (1948), grey = missing data (1955–1973)",
+       x = "Year", y = "Total Cases") +
+
+  scale_x_discrete(breaks = levels(yearly_totals_full$year)[seq(1, length(levels(yearly_totals_full$year)), by = 5)]) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 6))
+```
+
+```{r, animation plot appendix, echo = FALSE, echo = TRUE, eval = FALSE}
+# animation plot
+# create a complete grid of all states × years
+all_years <- 1938:1955
+all_states <- unique(states_sf$state_name)
+
+complete_grid <- expand.grid(state_name = all_states, year = all_years)
+
+#Join your summarized data into that complete grid
+summary_df_complete <- complete_grid %>%
+  left_join(summary_df, by = c("state_name" = "loc", "year"))
+
+# join this complete data with the spatial map
+map_df_complete <- left_join(states_sf, summary_df_complete, by = "state_name")
+
+# plot with missing data shown as white
+ggplot(data = filter(map_df_complete, year >= 1938 & year <= 1955)) +
+  geom_sf(aes(fill = total_cases), color = "white") +
+  scale_fill_viridis(
+    option = "plasma",
+    na.value = "white",
+    limits = c(0, max(summary_df$total_cases, na.rm = TRUE)),
+    breaks = c(0, 5000, 10000, 15000, 20000)
+  ) +
+  labs(
+    title = "Pertussis Cases by State — Year: {current_frame}",
+    fill = "Total Cases"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = "bold")) +
+  transition_manual(year)
+
+# save animation
+anim <- last_plot()
+
+animate(anim,
+        nframes = 70,
+        fps = 1,
+        end_pause = 5,
+        width = 800,
+        height = 500,
+        renderer = gifski_renderer())
+
+anim_save("pertussis_map.gif", animation = last_animation())
+```
+
+```{r, mean annual pertussis incidence appendix, echo = TRUE, eval = FALSE}
+# mean annual pertussis incidence
+# get all years in range
+all_years <- tibble(year = min(pertussis_df3$year):max(pertussis_df3$year))
+
+# compute mean, SD, max incidence per year
+incidence_stats <- pertussis_df3 %>%
+  group_by(year) %>%
+  summarise(
+    mean_inc = mean(incidence_per_100000, na.rm = TRUE),
+    sd_inc = sd(incidence_per_100000, na.rm = TRUE),
+    max_inc = max(incidence_per_100000, na.rm = TRUE)
+  )
+
+# join with full year list to make gaps explicit
+incidence_stats_full <- all_years %>%
+  left_join(incidence_stats, by = "year")
+
+
+# ploting "Mean Annual Pertussis Incidence in the US (± SD)"
+ggplot(incidence_stats_full, aes(x = year, y = mean_inc)) +
+  # Highlight the data gap
+  annotate("rect", xmin = 1956, xmax = 1973, ymin = -Inf, ymax = Inf, alpha = 0.2, fill = "grey70") +
+  geom_ribbon(aes(ymin = mean_inc - sd_inc, ymax = mean_inc + sd_inc),
+              fill = "skyblue", alpha = 0.3) +
+  geom_line(color = "darkblue", linewidth = 1.2) +
+  labs(
+    title = "Mean Annual Pertussis Incidence in the US (± SD)",
+    x = "Year",
+    y = "Mean Incidence per 100.000 population "
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+```{r, incidence heatmap plot appendix, fig.width=12, fig.height=7, echo = TRUE, eval = FALSE}
+# incidence heatmap
+# summarize the data
+heatmap_df <- pertussis_df3 %>%
+  group_by(loc, year) %>%
+  summarise(incidence = sum(incidence_per_100000, na.rm = TRUE), .groups = "drop")
+
+# compute total incidence per state for ordering
+state_order <- heatmap_df %>%
+  group_by(loc) %>%
+  summarise(total_incidence = sum(incidence, na.rm = TRUE)) %>%
+  arrange(desc(total_incidence))
+
+# join to reorder 'loc' factor levels
+heatmap_df <- heatmap_df %>%
+  mutate(loc = factor(loc, levels = state_order$loc))
+
+# plot
+ggplot(heatmap_df, aes(x = year, y = loc, fill = incidence)) +
+  geom_tile(color = "white", linewidth = 0.1) +
+  scale_fill_viridis_c(option = "magma", name = "Incidence per 100k", na.value = "grey90") +
+  scale_x_continuous(breaks = seq(1938, 2013, by = 5)) +
+  labs(
+    title = "Pertussis Incidence by State and Year",
+    x = "Year",
+    y = "State (ordered by total incidence)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(axis.text.y = element_text(size = 7))
+```
+
+
+## R Code Resurgence Analysis 1973 - 2013
+
+```{r, echo = TRUE, eval = FALSE}
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(MMWRweek)
+library(pheatmap)
+library(lubridate)
+library(forcats)
+library(scales)
+library(maps)
+
+# loading the data
+Project_Tycho_Level_1_Data_1_ <- readr::read_csv("Project_Tycho___Level_1_Data.csv")
+
+## Extracting pertussis data
+PERTUSSIS <- Project_Tycho_Level_1_Data_1_ %>% filter(disease == 'PERTUSSIS')
+
+## Date Extraction
+PERTUSSIS$epiWeek <- stringi::stri_c(PERTUSSIS$epi_week)
+PERTUSSIS$year <- substr(PERTUSSIS$epiWeek,1,4)
+PERTUSSIS$week <- substr(PERTUSSIS$epiWeek,5,6) 
+PERTUSSIS$date <- MMWRweek2Date(MMWRyear = as.numeric(PERTUSSIS$year), MMWRweek = as.numeric(PERTUSSIS$week))
+PERTUSSIS$month <-  month(PERTUSSIS$date)
+
+
+# figure: seasonality
+pert_1973 <- pert_1973 %>%
+  mutate(season = case_when(
+    month %in% c(12, 1, 2)  ~ "Winter",
+    month %in% c(3, 4, 5)   ~ "Spring",
+    month %in% c(6, 7, 8)   ~ "Summer",
+    month %in% c(9, 10, 11) ~ "Fall"
+  ))
+pert_1973 %>%
+  group_by(season) %>%
+  summarise(cases = sum(cases), .groups = "drop") %>%
+  mutate(season = factor(season, 
+        levels = c("Winter", "Spring", "Summer", "Fall"))) %>%
+  ggplot(aes(x = season, y = cases, fill = season)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Pertussis Cases by Season (1973–2011)",
+    x = "Season",
+    y = "Total Cases"
+  ) +
+  theme_minimal(base_size = 13)
+
+
+
+# figure: cases per year trend 
+pert_1973 %>%
+  group_by(year) %>%
+  summarise(cases = sum(cases)) %>% 
+  ggplot(aes(x = as.numeric(year), y = cases)) +
+  geom_point() +
+  geom_line() +
+  geom_smooth() +
+  theme_minimal() +
+  labs(x = "Year", y = "Incidence per 100.000", title = "Mean Annual Incidence Rate")
+
+
+# total VAERS reports by year
+VAERS <- read_delim("D:\\OneDrive\\Master LSI\\data visualization\\final assignment\\The Vaccine Adverse Event Reporting System (VAERS).xls", delim = "\t", escape_double = FALSE, trim_ws = TRUE)
+cont_state <- c(
+  "Alabama", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+  "Delaware", "Florida", "Georgia", "Idaho", "Illinois", "Indiana", "Iowa",
+  "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
+  "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska",
+  "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York",
+  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+  "West Virginia", "Wisconsin", "Wyoming"
+)
+VAERS <- VAERS %>% filter(`State / Territory` %in% cont_state)
+VAERS %>%
+  filter(`Year Vaccinated` > 1990) %>%
+  group_by(`Year Vaccinated`) %>%
+  summarise(report = sum(`Events Reported`, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = `Year Vaccinated`, y = report)) +
+  geom_line(size = 1.1, color = "steelblue") +
+  geom_point(size = 2, color = "steelblue") +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Total VAERS Reports by Year",
+    subtitle = "1990–2011",
+    x = "Year Vaccinated",
+    y = "Number of Reports"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40"),
+    axis.text = element_text(size = 11),
+    panel.grid.minor = element_blank()
+  ) + geom_text(aes(label = ifelse(report > 1000, report, "")), vjust = -0.8, size = 3)
+
+
+# Vaccine Adverse Event Reporting System (VAERS) data loading
+VAERS <- read_delim("D:\\OneDrive\\Master LSI\\data visualization\\final assignment\\The Vaccine Adverse Event Reporting System (VAERS).xls", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+
+head(VAERS)
+
+# Vaccine Groups
+VAERS <- VAERS %>% 
+mutate(group = case_when(
+    grepl("^DTP", Vaccine)  ~ "DTP",
+    grepl("^DTAP", Vaccine) ~ "DTaP",
+    grepl("^TDAP", Vaccine) ~ "Tdap",
+    TRUE ~ "Other"
+  )) 
+
+
+# VAERS Reports by Vaccine Type (1990–2011)
+VAERS %>% 
+  filter(group != 'Other' & `Year Vaccinated` >= 1990) %>%
+  group_by(group, `Year Vaccinated`) %>%
+  summarise(report = sum(`Events Reported`), .groups = "drop") %>% 
+  ggplot(aes(x = `Year Vaccinated`, y = report, color = group)) +
+  geom_line(size = 1.2) +
+  geom_vline(xintercept = 1991, linetype = "dashed", color = "red") +  # DTaP
+  geom_vline(xintercept = 2005, linetype = "dashed", color = "blue") +   
+  annotate("text", x = 1991, y = Inf, label = "DTaP Intro", angle = 90, vjust = 1.3, color = "blue", size = 3) +
+  annotate("text", x = 2005, y = Inf, label = "Tdap Intro", angle = 90, vjust = 1.3, color = "red", size = 3) +
+  labs(
+    title = "VAERS Reports by Vaccine Type (1990–2011)",
+    subtitle = "Dashed lines indicate vaccine introductions",
+    x = "Year Vaccinated",
+    y = "Reports",
+    color = "Vaccine Type"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "top",
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray40")
+  )
+
+
+# Pertussis Cases vs. Vaccine Adverse Event Reports (1990–2011)
+## vaccinations per year since 1990
+vax_90 <- VAERS %>%
+  filter(`Year Vaccinated` > 1990) %>%
+  group_by(`Year Vaccinated`) %>%
+  summarise(report = sum(`Events Reported`, na.rm = TRUE),
+            year =`Year Vaccinated` , .groups = "drop")
+
+## reported cases per year since 1990
+pert_90 <- pert_1973 %>% 
+  filter(year >= 1990) %>% 
+  group_by(year) %>% 
+  summarise(cases = sum(cases))
+pert_90$year <- as.numeric(pert_90$year)
+
+##joining both cases and vaccinations 
+pert_vax_90 <- left_join(
+  pert_90,
+  vax_90
+)
+ggplot(pert_vax_90, aes(x = year)) +
+  geom_line(aes(y = report, color = "Vaccine Reports"), size = 1.2) +
+  geom_line(aes(y = cases, color = "Pertussis Cases"), size = 1.2) +
+  scale_color_manual(values = c("Vaccine Reports" = "steelblue", "Pertussis Cases" = "firebrick")) +
+  labs(
+    title = "Pertussis Cases vs. Vaccine Adverse Event Reports (1990–2011)",
+    x = "Year",
+    y = "Count",
+    color = "Legend"
+  ) +
+   geom_vline(xintercept = 1991, linetype = "dashed", color = "red") +  # DTaP
+  geom_vline(xintercept = 2005, linetype = "dashed", color = "blue") +   # 
+  annotate("text", x = 1991, y = Inf, label = "DTaP Intro", angle = 90, vjust = 1.3, color = "blue", size = 3) +
+  annotate("text", x = 2005, y = Inf, label = "Tdap Intro", angle = 90, vjust = 1.3, color = "red", size = 3)+
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    legend.position = "top",
+    axis.text = element_text(size = 11)
+  )
+
+
+# Vaccination Reports by Age and Vaccine Group
+VAERS %>%
+  filter(Age != 'Unknown' & group != 'Other') %>%
+  group_by(group, Age) %>%
+  summarise(report = sum(`Events Reported`, na.rm = TRUE), .groups = "drop") %>%
+  mutate(Age = reorder(as.factor(Age), report)) %>%
+  ggplot(aes(x = report, y = Age, fill = group)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    title = "Vaccination Reports by Age and Vaccine Group",
+    x = "Number of Reports",
+    y = "Age",
+    fill = "Vaccine Group"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    legend.position = "top",
+    axis.text = element_text(size = 11)
+  )
+```
